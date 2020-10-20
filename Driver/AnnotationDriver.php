@@ -6,7 +6,7 @@ use Doctrine\Common\Annotations\IndexedReader;
 use Doctrine\Common\Annotations\Reader;
 use Metadata\ClassMetadata as BaseClassMetadata;
 use Metadata\Driver\DriverInterface;
-use Metadata\MethodMetadata;
+use Vox\Metadata\MethodMetadata;
 use ProxyManager\Proxy\AccessInterceptorValueHolderInterface;
 use ReflectionClass;
 use Vox\Metadata\ClassMetadata;
@@ -30,14 +30,18 @@ class AnnotationDriver implements DriverInterface
     
     private $propertyMetadataClassName;
     
+    private $methodMetadataClassName;
+    
     public function __construct(
         Reader $annotationReader,
         string $classMetadataClassName = ClassMetadata::class,
-        string $propertyMetadataClassName = PropertyMetadata::class
+        string $propertyMetadataClassName = PropertyMetadata::class,
+        string $methodMetadataClassName = MethodMetadata::class
     ) {
         $this->annotationReader          = new IndexedReader($annotationReader);
         $this->classMetadataClassName    = $classMetadataClassName;
         $this->propertyMetadataClassName = $propertyMetadataClassName;
+        $this->methodMetadataClassName   = $methodMetadataClassName;
     }
     
     public function loadMetadataForClass(ReflectionClass $class): BaseClassMetadata
@@ -53,7 +57,10 @@ class AnnotationDriver implements DriverInterface
         $classMetadata->setAnnotations($classAnnotations);
         
         foreach ($class->getMethods() as $method) {
-            $classMetadata->addMethodMetadata(new MethodMetadata($class->name, $method->name));
+            $methodMatadata = (new ReflectionClass($this->methodMetadataClassName))
+                ->newInstance($class->name, $method->name);
+            $methodMatadata->setAnnotations($this->annotationReader->getMethodAnnotations($method));
+            $classMetadata->addMethodMetadata($methodMatadata);
         }
         
         foreach ($class->getProperties() as $property) {
