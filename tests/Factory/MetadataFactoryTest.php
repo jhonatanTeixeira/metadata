@@ -134,7 +134,7 @@ class ParentStubYaml {
     public $overriden;
 }
 
-class MetadataStubYaml extends ParentStub {
+class MetadataStubYaml extends ParentStubYaml {
     /**
      * @var int
      */
