@@ -21,7 +21,7 @@ class MethodMetadata extends BaseMetadata
             : null;
 
         $this->params = array_map(
-            fn($param) => new ParamMetadata($this, $param->name, $param),
+            fn($param) => new ParamMetadata($class, $name, $param->name),
             $this->reflection->getParameters()
         );
     }

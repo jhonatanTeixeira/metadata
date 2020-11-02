@@ -4,6 +4,8 @@ namespace Vox\Metadata;
 
 class ParamMetadata implements \Serializable
 {
+    public $class;
+
     public $method;
 
     public $name;
@@ -12,15 +14,13 @@ class ParamMetadata implements \Serializable
 
     public $type;
 
-    public function __construct(\Metadata\MethodMetadata $method, string $name, \ReflectionParameter $reflection = null)
+    public function __construct($class, $method, $name)
     {
+        $this->class      = $class;
         $this->method     = $method;
         $this->name       = $name;
-        $this->reflection = $reflection;
 
-        if (!$reflection) {
-            $this->loadReflection();
-        }
+        $this->loadReflection();
 
         $class = $this->reflection->getClass() ? $this->reflection->getClass()->name : null;
         $type  = $this->reflection->hasType() ? $this->reflection->getType()->getName() : null;
@@ -29,17 +29,17 @@ class ParamMetadata implements \Serializable
     }
 
     private function loadReflection() {
-        $this->reflection = new \ReflectionParameter([$this->method->class, $this->method->name], $this->name);
+        $this->reflection = new \ReflectionParameter([$this->class, $this->method], $this->name);
     }
 
     public function serialize()
     {
-        return serialize([$this->method, $this->name, $this->type]);
+        return serialize([$this->class, $this->method, $this->name, $this->type]);
     }
 
     public function unserialize($serialized)
     {
-        [$this->method, $this->name, $this->type] = $this->unserialize($serialized);
+        [$this->class, $this->method, $this->name, $this->type] = unserialize($serialized);
         $this->loadReflection();
     }
 }

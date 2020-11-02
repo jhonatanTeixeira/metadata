@@ -48,6 +48,7 @@ class MetadataFactoryTest extends TestCase
         $this->assertTrue($metadata->propertyMetadata['many']->isDecoratedType());
         $this->assertEquals('array', $metadata->propertyMetadata['many']->typeInfo['class']);
         $this->assertEquals(MetadataStub::class, $metadata->propertyMetadata['many']->typeInfo['decoration']);
+        $this->assertEquals(MetadataStub::class, $metadata->methodMetadata['setSomeOtherValue']->params[0]->type);
     }
 }
 
