@@ -3,6 +3,7 @@
 namespace Vox\Metadata;
 
 use Metadata\MergeableClassMetadata;
+use Metadata\MergeableInterface;
 
 /**
  * Holds all metadata for a single class
@@ -37,5 +38,11 @@ class ClassMetadata extends MergeableClassMetadata
         ) = unserialize($str);
 
         $this->reflection = new \ReflectionClass($this->name);
+    }
+
+    public function merge(MergeableInterface $object)
+    {
+        parent::merge($object);
+        $this->annotations = array_merge($this->annotations, $object->annotations);
     }
 }

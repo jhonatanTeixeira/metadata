@@ -28,6 +28,16 @@ class MetadataFactoryTest extends TestCase
         $this->doAssertions(unserialize($serialized));
     }
 
+    public function testShouldReadYamlMetadata() {
+        $factory = (new MetadataFactoryFactory())->createYmlMetadataFactory(__DIR__ . '/../fixtures');
+
+        $metadata = $factory->getMetadataForClass(MetadataStubYaml::class);
+
+        $serialized = serialize($metadata);
+
+        $this->doAssertions(unserialize($serialized));
+    }
+
     public function doAssertions(ClassMetadata $metadata) {
         $this->assertInstanceOf(ClassMetadata::class, $metadata);
         $this->assertTrue($metadata->hasAnnotation(TestAnnotation::class));
@@ -49,13 +59,24 @@ class MetadataFactoryTest extends TestCase
         $this->assertEquals('array', $metadata->propertyMetadata['many']->typeInfo['class']);
         $this->assertEquals(MetadataStub::class, $metadata->propertyMetadata['many']->typeInfo['decoration']);
         $this->assertEquals(MetadataStub::class, $metadata->methodMetadata['setSomeOtherValue']->params[0]->type);
+
+        $this->assertCount(1, $metadata->getAnnotations());
+        $this->assertInstanceOf(TestAnnotation::class, $metadata->getAnnotation(TestAnnotation::class));
+        $this->assertEquals('int', $metadata->propertyMetadata['extra']->type);
+        $this->assertTrue($metadata->propertyMetadata['overriden']->hasAnnotation(TestAnnotation::class));
     }
+}
+
+class ParentStub {
+    public int $extra;
+
+    public $overriden;
 }
 
 /**
  * @TestAnnotation
  */
-class MetadataStub {
+class MetadataStub extends ParentStub {
     /**
      * @var int
      */
@@ -87,6 +108,60 @@ class MetadataStub {
     /**
      * @TestAnnotation
      */
+    public $overriden;
+
+    /**
+     * @TestAnnotation
+     */
+    public function getId(): int {
+        return $this->id;
+    }
+
+    public function setSomeValue(string $someValue): void
+    {
+        $this->someValue = $someValue;
+    }
+
+    public function setSomeOtherValue(MetadataStub $someOtherValue): void
+    {
+        $this->someOtherValue = $someOtherValue;
+    }
+}
+
+class ParentStubYaml {
+    public int $extra;
+
+    public $overriden;
+}
+
+class MetadataStubYaml extends ParentStub {
+    /**
+     * @var int
+     */
+    public $id;
+
+    public string $name;
+
+    public MetadataStub $parent;
+
+    /**
+     * @var MetadataStub
+     */
+    public $child;
+
+    public $someValue;
+
+    public $someOtherValue;
+
+    public \DateTime $createdAt;
+
+    /**
+     * @var array<MetadataStub>
+     */
+    public $many = [];
+
+    public $overriden;
+
     public function getId(): int {
         return $this->id;
     }

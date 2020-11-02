@@ -44,7 +44,7 @@ class MetadataFactoryFactory implements MetadataFactoryFactoryInterface
 
     public function createYmlMetadataFactory(
         string $metadataPath,
-        string $metadataClassName,
+        string $metadataClassName = ClassMetadata::class,
         string $methodMetadataClassName = MethodMetadata::class,
         string $propertyMetadataClassName = PropertyMetadata::class,
         string $yamlExtension = 'yaml'

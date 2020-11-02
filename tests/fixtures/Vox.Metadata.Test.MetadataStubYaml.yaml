@@ -1,0 +1,13 @@
+class:
+  - Vox\Metadata\Test\Stub\TestAnnotation
+
+properties:
+  name:
+    - Vox\Metadata\Test\Stub\TestAnnotation
+
+  overriden:
+    - Vox\Metadata\Test\Stub\TestAnnotation
+
+methods:
+  getId:
+    - Vox\Metadata\Test\Stub\TestAnnotation

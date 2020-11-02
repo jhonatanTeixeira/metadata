@@ -18,6 +18,8 @@ use Vox\Metadata\PropertyMetadata;
  */
 class YmlDriver implements DriverInterface
 {
+    use TypeFromSetterTrait;
+
     private $ymlParser;
     
     private $path;
@@ -52,9 +54,10 @@ class YmlDriver implements DriverInterface
         }
         
         $yaml = $this->loadYml($class);
-        
+
         /* @var $classMetadata ClassMetadata */
         $classMetadata = (new ReflectionClass($this->classMetadataClassName))->newInstance($class->name);
+        $classMetadata->setAnnotations($this->getAnnotations($yaml, 'class'));
 
         foreach ($class->getMethods() as $method) {
             $methodMetadata = (new ReflectionClass($this->methodMetadataClassName))
@@ -72,9 +75,13 @@ class YmlDriver implements DriverInterface
 
             $propertyMetadata->setAnnotations($this->getAnnotations($yaml, 'properties', $property->name));
 
+            if (property_exists($propertyMetadata, 'type') && empty($propertyMetadata->type)) {
+                $propertyMetadata->type = $this->getTypeFromSetter($propertyMetadata, $classMetadata);
+            }
+
             $classMetadata->addPropertyMetadata($propertyMetadata);
         }
-        
+
         return $classMetadata;
     }
     
@@ -85,10 +92,10 @@ class YmlDriver implements DriverInterface
         $path = sprintf(
             '%s/%s.%s',
             preg_replace('/\/$/', '', $this->path), 
-            str_replace('\\', DIRECTORY_SEPARATOR, $className),
+            str_replace('\\', '.', $className),
             $this->yamlExtension
         );
-        
+
         if (is_file($path)) {
             return $this->ymlParser->parse(file_get_contents($path));
         }
@@ -110,14 +117,12 @@ class YmlDriver implements DriverInterface
     /**
      * @return object[]
      */
-    private function getAnnotations(array $yaml, string $key, string $name): array {
-        if (!isset($yaml[$key]) || !isset($yaml[$key][$name])) {
-            return [];
-        }
-
+    private function getAnnotations(array $yaml, string $key, string $name = null): array {
         $annotations = [];
 
-        foreach ($yaml[$key][$name] as $key => $value) {
+        $data = $name ? $yaml[$key][$name] ?? [] : $yaml[$key] ?? [];
+
+        foreach ($data as $key => $value) {
             if (is_numeric($key)) {
                 $annotationClass = $value;
                 $params = [];
@@ -126,13 +131,13 @@ class YmlDriver implements DriverInterface
                 $params = $value;
             }
 
-            $annotation = $annotationClass();
+            $annotation = new $annotationClass();
 
             foreach ($params as $key => $value) {
                 $annotation->{$key} = $value;
             }
 
-            $annotations[] = $annotation;
+            $annotations[$annotationClass] = $annotation;
         }
 
         return $annotations;

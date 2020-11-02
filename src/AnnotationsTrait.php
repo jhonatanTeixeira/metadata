@@ -9,7 +9,7 @@ namespace Vox\Metadata;
  */
 trait AnnotationsTrait
 {
-    public $annotations;
+    public $annotations = [];
     
     public function getAnnotations(): array
     {
