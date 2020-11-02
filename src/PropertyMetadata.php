@@ -65,24 +65,30 @@ class PropertyMetadata extends BaseMetadata
         
         $fullType = $matches[1] ?? null;
         $type     = $matches[2] ?? null;
-        
+
         if (null === $type) {
             return;
         }
         
-        $uses = $this->getClassUses();
-        
-        foreach ($uses as $use) {
-            if (preg_match("/{$type}$/", $use)) {
-                return $use . ($matches[3] ?? null);
-            }
-            
-            if (class_exists("$use\\$type")) {
-                return "$use\\$type" . ($matches[3] ?? null);
-            }
+        if ($resolvedType = $this->resolveFullTypeName($type, $matches[3] ?? null)) {
+            return $resolvedType;
         }
         
         return $fullType;
+    }
+
+    private function resolveFullTypeName($type, $suffix = null) {
+        $uses = $this->getClassUses();
+
+        foreach ($uses as $use) {
+            if (preg_match("/{$type}$/", $use)) {
+                return $use . $suffix;
+            }
+
+            if (class_exists("$use\\$type")) {
+                return "$use\\$type" . $suffix;
+            }
+        }
     }
     
     private function getClassUses(): array
@@ -149,9 +155,11 @@ class PropertyMetadata extends BaseMetadata
     private function parseTypeDecoration(string $type = null)
     {
         if (preg_match('/(?P<class>.*)((\<(?P<decoration>.*)\>)|(?P<brackets>\[\]))/', $type, $matches)) {
+            $decoration = isset($matches['brackets']) ? $matches['class'] : $matches['decoration'];
+
             return [
                 'class'      => isset($matches['brackets']) ? 'array' : $matches['class'],
-                'decoration' => isset($matches['brackets']) ? $matches['class'] : $matches['decoration']
+                'decoration' => $this->resolveFullTypeName($decoration)
             ];
         }
     }
