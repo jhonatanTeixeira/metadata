@@ -40,4 +40,24 @@ trait TypeFromSetterTrait
 
         return $classMetadata->methodMetadata[$setterName] ?? null;
     }
+
+    private function getGetter(PropertyMetadata $propertyMetadata, ClassMetadata $classMetadata) {
+        $getterName = sprintf('get%s', ucfirst($propertyMetadata->name));
+
+        return $classMetadata->methodMetadata[$getterName] ?? null;
+    }
+
+    private function parseAccessors(PropertyMetadata $propertyMetadata, ClassMetadata $classMetadata) {
+        if (property_exists($propertyMetadata, 'type') && empty($propertyMetadata->type)) {
+            $propertyMetadata->type = $this->getTypeFromSetter($propertyMetadata, $classMetadata);
+        }
+
+        if (property_exists($propertyMetadata, 'setter') && empty($propertyMetadata->setter)) {
+            $propertyMetadata->setter = $this->getSetter($propertyMetadata, $classMetadata);
+        }
+
+        if (property_exists($propertyMetadata, 'getter') && empty($propertyMetadata->getter)) {
+            $propertyMetadata->getter = $this->getGetter($propertyMetadata, $classMetadata);
+        }
+    }
 }

@@ -68,14 +68,8 @@ class AnnotationDriver implements DriverInterface
             $propertyMetadata = (new ReflectionClass($this->propertyMetadataClassName))
                 ->newInstance($class->name, $property->name);
             $propertyMetadata->setAnnotations($propertyAnnotations);
-            
-            if (property_exists($propertyMetadata, 'type') && empty($propertyMetadata->type)) {
-                $propertyMetadata->type = $this->getTypeFromSetter($propertyMetadata, $classMetadata);
-            }
-            
-            if (property_exists($propertyMetadata, 'setter') && empty($propertyMetadata->setter)) {
-                $propertyMetadata->setter = $this->getSetter($propertyMetadata, $classMetadata);
-            }
+
+            $this->parseAccessors($propertyMetadata, $classMetadata);
 
             $classMetadata->addPropertyMetadata($propertyMetadata);
         }

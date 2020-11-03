@@ -67,7 +67,9 @@ class MetadataFactoryTest extends TestCase
         $this->assertTrue($metadata->propertyMetadata['overriden']->hasAnnotation(TestAnnotation::class));
 
         $this->assertTrue($metadata->propertyMetadata['someValue']->hasSetter());
+        $this->assertTrue($metadata->propertyMetadata['id']->hasGetter());
         $this->assertInstanceOf(MethodMetadata::class, $metadata->propertyMetadata['someValue']->setter);
+        $this->assertEquals('getId', $metadata->propertyMetadata['id']->getter->name);
         $this->assertEquals('setSomeValue', $metadata->propertyMetadata['someValue']->setter->name);
     }
 }

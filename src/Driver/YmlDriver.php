@@ -75,13 +75,7 @@ class YmlDriver implements DriverInterface
 
             $propertyMetadata->setAnnotations($this->getAnnotations($yaml, 'properties', $property->name));
 
-            if (property_exists($propertyMetadata, 'type') && empty($propertyMetadata->type)) {
-                $propertyMetadata->type = $this->getTypeFromSetter($propertyMetadata, $classMetadata);
-            }
-
-            if (property_exists($propertyMetadata, 'setter') && empty($propertyMetadata->setter)) {
-                $propertyMetadata->setter = $this->getSetter($propertyMetadata, $classMetadata);
-            }
+            $this->parseAccessors($propertyMetadata, $classMetadata);
 
             $classMetadata->addPropertyMetadata($propertyMetadata);
         }
