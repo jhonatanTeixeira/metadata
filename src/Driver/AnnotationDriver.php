@@ -73,6 +73,10 @@ class AnnotationDriver implements DriverInterface
                 $propertyMetadata->type = $this->getTypeFromSetter($propertyMetadata, $classMetadata);
             }
             
+            if (property_exists($propertyMetadata, 'setter') && empty($propertyMetadata->setter)) {
+                $propertyMetadata->setter = $this->getSetter($propertyMetadata, $classMetadata);
+            }
+
             $classMetadata->addPropertyMetadata($propertyMetadata);
         }
         

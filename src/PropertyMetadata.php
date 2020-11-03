@@ -18,6 +18,8 @@ class PropertyMetadata extends BaseMetadata
     public $type;
     
     public $typeInfo;
+
+    public $setter;
     
     /**
      * @param ReflectionClass $class
@@ -163,6 +165,10 @@ class PropertyMetadata extends BaseMetadata
             ];
         }
     }
+
+    public function hasSetter() {
+        return !empty($this->setter);
+    }
     
     public function serialize()
     {
@@ -172,12 +178,20 @@ class PropertyMetadata extends BaseMetadata
             $this->annotations,
             $this->type,
             $this->typeInfo,
+            $this->setter
         ]);
     }
 
     public function unserialize($str)
     {
-        list($this->class, $this->name, $this->annotations, $this->type, $this->typeInfo) = unserialize($str);
+        [
+            $this->class,
+            $this->name,
+            $this->annotations,
+            $this->type,
+            $this->typeInfo,
+            $this->setter
+        ] = unserialize($str);
 
         $this->reflection = new \ReflectionProperty($this->class, $this->name);
         $this->reflection->setAccessible(true);

@@ -16,9 +16,7 @@ trait TypeFromSetterTrait
 {
     private function getTypeFromSetter(PropertyMetadata $propertyMetadata, ClassMetadata $classMetadata)
     {
-        $setterName = sprintf('set%s', ucfirst($propertyMetadata->name));
-        
-        $setter = $classMetadata->methodMetadata[$setterName] ?? null;
+        $setter = $this->getSetter($propertyMetadata, $classMetadata);
         
         if ($setter instanceof MethodMetadata) {
             $params = $setter->reflection->getParameters();
@@ -35,5 +33,11 @@ trait TypeFromSetterTrait
                 ? $params[0]->getClass()->name
                 : ($params[0]->hasType() ? $params[0]->getType()->getName() : null);
         }
-    }    
+    }
+
+    private function getSetter(PropertyMetadata $propertyMetadata, ClassMetadata $classMetadata) {
+        $setterName = sprintf('set%s', ucfirst($propertyMetadata->name));
+
+        return $classMetadata->methodMetadata[$setterName] ?? null;
+    }
 }

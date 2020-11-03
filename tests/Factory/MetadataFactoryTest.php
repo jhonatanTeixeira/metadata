@@ -6,6 +6,7 @@ namespace Vox\Metadata\Test;
 use PHPUnit\Framework\TestCase;
 use Vox\Metadata\ClassMetadata;
 use Vox\Metadata\Factory\MetadataFactoryFactory;
+use Vox\Metadata\MethodMetadata;
 use Vox\Metadata\Test\Stub\TestAnnotation;
 
 class MetadataFactoryTest extends TestCase
@@ -64,6 +65,10 @@ class MetadataFactoryTest extends TestCase
         $this->assertInstanceOf(TestAnnotation::class, $metadata->getAnnotation(TestAnnotation::class));
         $this->assertEquals('int', $metadata->propertyMetadata['extra']->type);
         $this->assertTrue($metadata->propertyMetadata['overriden']->hasAnnotation(TestAnnotation::class));
+
+        $this->assertTrue($metadata->propertyMetadata['someValue']->hasSetter());
+        $this->assertInstanceOf(MethodMetadata::class, $metadata->propertyMetadata['someValue']->setter);
+        $this->assertEquals('setSomeValue', $metadata->propertyMetadata['someValue']->setter->name);
     }
 }
 
