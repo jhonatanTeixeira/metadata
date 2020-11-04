@@ -2,6 +2,8 @@
 
 namespace Vox\Metadata;
 
+use ReflectionParameter;
+
 class ParamMetadata implements \Serializable
 {
     public $class;
@@ -29,7 +31,8 @@ class ParamMetadata implements \Serializable
     }
 
     private function loadReflection() {
-        $this->reflection = new \ReflectionParameter([$this->class, $this->method], $this->name);
+        $callable = $this->class ? [$this->class, $this->method] : $this->method;
+        $this->reflection = new ReflectionParameter($callable, $this->name);
     }
 
     public function serialize()

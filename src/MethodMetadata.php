@@ -6,7 +6,7 @@ use Metadata\MethodMetadata as BaseMetadata;
 
 class MethodMetadata extends BaseMetadata
 {
-    use AnnotationsTrait;
+    use AnnotationsTrait, FunctionResolverTrait;
 
     public $returnType;
 
@@ -16,14 +16,8 @@ class MethodMetadata extends BaseMetadata
     {
         parent::__construct($class, $name);
 
-        $this->returnType = $this->reflection->hasReturnType()
-            ? $this->reflection->getReturnType()->getName()
-            : null;
-
-        $this->params = array_map(
-            fn($param) => new ParamMetadata($class, $name, $param->name),
-            $this->reflection->getParameters()
-        );
+        $this->resolveReturnType();
+        $this->resolveParams();
     }
 
     public function serialize()
