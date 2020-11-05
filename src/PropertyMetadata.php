@@ -64,20 +64,24 @@ class PropertyMetadata extends BaseMetadata
     private function parseType()
     {
         $docComment = $this->reflection->getDocComment();
-        
-        preg_match('/@var\s+(([^\[\]\s]+)(\[\])?)/', $docComment, $matches);
-        
-        $fullType = $matches[1] ?? null;
-        $type     = $matches[2] ?? null;
+
+        preg_match(
+            '/@var\s+(?P<full>(?P<class>[^\[\s<]+)(?P<suffix>(\[\])|(<.+>))?)/',
+            $docComment,
+            $matches
+        );
+
+        $fullType = $matches['full'] ?? null;
+        $type     = $matches['class'] ?? null;
 
         if (null === $type) {
             return;
         }
-        
-        if ($resolvedType = $this->resolveFullTypeName($type, $matches[3] ?? null)) {
+
+        if ($resolvedType = $this->resolveFullTypeName($type, $matches['suffix'] ?? null)) {
             return $resolvedType;
         }
-        
+
         return $fullType;
     }
 
