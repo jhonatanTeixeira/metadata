@@ -86,6 +86,10 @@ class PropertyMetadata extends BaseMetadata
     }
 
     private function resolveFullTypeName($type, $suffix = null) {
+        if (preg_match('/^\\\/', $type)) {
+            return preg_replace('/^\\\/', '', $type) . $suffix;
+        }
+
         $uses = $this->getClassUses();
 
         foreach ($uses as $use) {
@@ -166,8 +170,10 @@ class PropertyMetadata extends BaseMetadata
             $decoration = isset($matches['brackets']) ? $matches['class'] : $matches['decoration'];
 
             return [
-                'class'      => isset($matches['brackets']) ? 'array' : $matches['class'],
-                'decoration' => $this->resolveFullTypeName($decoration)
+                'class'      => isset($matches['brackets'])
+                    ? 'array'
+                    : $this->resolveFullTypeName($matches['class']) ?? $matches['class'],
+                'decoration' => $this->resolveFullTypeName($decoration) ?? $decoration
             ];
         }
     }
