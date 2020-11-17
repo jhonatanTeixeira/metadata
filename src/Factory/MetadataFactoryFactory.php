@@ -4,6 +4,7 @@ namespace Vox\Metadata\Factory;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
+use Metadata\ClassHierarchyMetadata;
 use Metadata\Driver\DriverInterface;
 use Metadata\MetadataFactory;
 use Vox\Metadata\ClassMetadata;
@@ -14,18 +15,30 @@ use Vox\Metadata\PropertyMetadata;
 
 class MetadataFactoryFactory implements MetadataFactoryFactoryInterface
 {
+    private $debug;
+
+    public function __construct($debug = false)
+    {
+        $this->debug = $debug;
+    }
+
+
     public function createAnnotationMetadataFactory(
         string $metadataClassName = ClassMetadata::class,
         Reader $reader = null,
         string $methodMetadataClassName = MethodMetadata::class,
         string $propertyMetadataClassName = PropertyMetadata::class
     ) {
-        return new MetadataFactory($this->createAnnotationMetadataDriver(
-            $metadataClassName,
-            $reader,
-            $methodMetadataClassName,
-            $propertyMetadataClassName
-        ));
+        return new MetadataFactory(
+            $this->createAnnotationMetadataDriver(
+                $metadataClassName,
+                $reader,
+                $methodMetadataClassName,
+                $propertyMetadataClassName
+            ),
+            ClassHierarchyMetadata::class,
+            $this->debug
+        );
     }
     
     private function createAnnotationMetadataDriver(
@@ -49,13 +62,17 @@ class MetadataFactoryFactory implements MetadataFactoryFactoryInterface
         string $propertyMetadataClassName = PropertyMetadata::class,
         string $yamlExtension = 'yaml'
     ) {
-        return new MetadataFactory($this->createYmlMetadataDriver(
-            $metadataPath,
-            $metadataClassName,
-            $methodMetadataClassName,
-            $propertyMetadataClassName,
-            $yamlExtension
-        ));
+        return new MetadataFactory(
+            $this->createYmlMetadataDriver(
+                $metadataPath,
+                $metadataClassName,
+                $methodMetadataClassName,
+                $propertyMetadataClassName,
+                $yamlExtension
+            ),
+            ClassHierarchyMetadata::class,
+            $this->debug
+        );
     }
 
     private function createYmlMetadataDriver(
