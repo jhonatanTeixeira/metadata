@@ -15,30 +15,31 @@ class PsrSimpleCacheAdapterTest extends TestCase
         $metadata = new ClassMetadata(SomeCacheStub::class);
         $metadata->fileResources[] = __FILE__;
         $metadata->createdAt = filemtime(__FILE__) - 1000;
+        $cacheKey = "metadata." . str_replace('\\', '.', SomeCacheStub::class);
 
         $simpleCacheMock = $this->createMock(CacheInterface::class);
         $simpleCacheMock
             ->expects($this->once())
             ->method('get')
-            ->with('metadata.' . SomeCacheStub::class)
+            ->with($cacheKey)
             ->willReturn($metadata);
 
         $simpleCacheMock
             ->expects($this->once())
             ->method('has')
-            ->with('metadata.' . SomeCacheStub::class)
+            ->with($cacheKey)
             ->willReturn(true);
 
         $simpleCacheMock
             ->expects($this->once())
             ->method('delete')
-            ->with('metadata.' . SomeCacheStub::class)
+            ->with($cacheKey)
             ->willReturn($metadata);
 
         $simpleCacheMock
             ->expects($this->once())
             ->method('set')
-            ->with('metadata.' . SomeCacheStub::class, $this->anything());
+            ->with($cacheKey, $this->anything());
 
         $metadataFactory = (new MetadataFactoryFactory(true))->createAnnotationMetadataFactory();
         $metadataFactory->setCache(new PsrSimpleCacheAdapter($simpleCacheMock));

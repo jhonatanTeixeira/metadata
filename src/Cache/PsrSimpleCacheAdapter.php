@@ -20,19 +20,27 @@ class PsrSimpleCacheAdapter implements CacheInterface
         $this->prefix = $prefix;
     }
 
+    private function getClassName($metadata)
+    {
+        return str_replace('\\', '.', $metadata->name);
+    }
+
     public function loadClassMetadataFromCache(\ReflectionClass $class)
     {
-        return $this->cache->get("{$this->prefix}.{$class->name}");
+        $className = $this->getClassName($class);
+        return $this->cache->get("{$this->prefix}.{$className}");
     }
 
     public function putClassMetadataInCache(ClassMetadata $metadata)
     {
-        return $this->cache->set("{$this->prefix}.{$metadata->name}", $metadata);
+        $className = $this->getClassName($metadata);
+        return $this->cache->set("{$this->prefix}.{$className}", $metadata);
     }
 
     public function evictClassMetadataFromCache(\ReflectionClass $class)
     {
-        $key = "{$this->prefix}.{$class->name}";
+        $className = $this->getClassName($class);
+        $key = "{$this->prefix}.{$className}";
 
         if ($this->cache->has($key)) {
             return $this->cache->delete($key);
