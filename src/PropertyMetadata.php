@@ -86,6 +86,8 @@ class PropertyMetadata extends BaseMetadata
     }
 
     private function resolveFullTypeName($type, $suffix = null) {
+        $type = preg_replace('/^\?/', '', $type);
+
         if (preg_match('/^\\\/', $type)) {
             return preg_replace('/^\\\/', '', $type) . $suffix;
         }
