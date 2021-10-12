@@ -16,7 +16,7 @@ class MetadataFactoryTest extends TestCase
 
         $metadata = $factory->getMetadataForClass(MetadataStub::class);
 
-        $this->doAssertions($metadata);
+        $this->doAssertions($metadata, 'some');
     }
 
     public function testShouldSerializeMetadata() {
@@ -26,7 +26,7 @@ class MetadataFactoryTest extends TestCase
 
         $serialized = serialize($metadata);
 
-        $this->doAssertions(unserialize($serialized));
+        $this->doAssertions(unserialize($serialized), 'some');
     }
 
     public function testShouldReadYamlMetadata() {
@@ -38,8 +38,18 @@ class MetadataFactoryTest extends TestCase
 
         $this->doAssertions(unserialize($serialized));
     }
+    
+    public function testShouldReadAttribute() {
+        $factory = (new MetadataFactoryFactory())->createAnnotationMetadataFactory();
 
-    public function doAssertions(ClassMetadata $metadata) {
+        $metadata = $factory->getMetadataForClass(AttributeStub::class);
+
+        $serialized = serialize($metadata);
+
+        $this->doAssertions(unserialize($serialized), 'my name');
+    }
+
+    public function doAssertions(ClassMetadata $metadata, $name = 'default') {
         $this->assertInstanceOf(ClassMetadata::class, $metadata);
         $this->assertTrue($metadata->hasAnnotation(TestAnnotation::class));
         $this->assertTrue($metadata->methodMetadata['getId']->hasAnnotation(TestAnnotation::class));
@@ -64,6 +74,7 @@ class MetadataFactoryTest extends TestCase
         $this->assertCount(1, $metadata->getAnnotations());
         $this->assertInstanceOf(TestAnnotation::class, $metadata->getAnnotation(TestAnnotation::class));
         $this->assertEquals('int', $metadata->propertyMetadata['extra']->type);
+        $this->assertEquals($name, $metadata->getAnnotation(TestAnnotation::class)->name);
         $this->assertTrue($metadata->propertyMetadata['overriden']->hasAnnotation(TestAnnotation::class));
 
         $this->assertTrue($metadata->propertyMetadata['someValue']->hasSetter());
@@ -81,7 +92,7 @@ class ParentStub {
 }
 
 /**
- * @TestAnnotation
+ * @TestAnnotation("some")
  */
 class MetadataStub extends ParentStub {
     /**
@@ -169,6 +180,53 @@ class MetadataStubYaml extends ParentStubYaml {
 
     public $overriden;
 
+    public function getId(): int {
+        return $this->id;
+    }
+
+    public function setSomeValue(string $someValue): void
+    {
+        $this->someValue = $someValue;
+    }
+
+    public function setSomeOtherValue(MetadataStub $someOtherValue): void
+    {
+        $this->someOtherValue = $someOtherValue;
+    }
+}
+
+#[TestAnnotation(name: 'my name')]
+class AttributeStub extends ParentStub {
+    /**
+     * @var int
+     */
+    public $id;
+
+    #[TestAnnotation]
+    public string $name;
+
+    public MetadataStub $parent;
+
+    /**
+     * @var MetadataStub
+     */
+    public $child;
+
+    public $someValue;
+
+    public $someOtherValue;
+
+    public \DateTime $createdAt;
+
+    /**
+     * @var array<MetadataStub>
+     */
+    public $many = [];
+
+    #[TestAnnotation]
+    public $overriden;
+
+    #[TestAnnotation]
     public function getId(): int {
         return $this->id;
     }

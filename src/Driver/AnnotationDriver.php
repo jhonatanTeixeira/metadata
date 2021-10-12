@@ -6,11 +6,12 @@ use Doctrine\Common\Annotations\IndexedReader;
 use Doctrine\Common\Annotations\Reader;
 use Metadata\ClassMetadata as BaseClassMetadata;
 use Metadata\Driver\DriverInterface;
-use Vox\Metadata\MethodMetadata;
 use ProxyManager\Proxy\AccessInterceptorValueHolderInterface;
 use ReflectionClass;
 use Vox\Metadata\ClassMetadata;
+use Vox\Metadata\MethodMetadata;
 use Vox\Metadata\PropertyMetadata;
+use Vox\Metadata\Reader\AttributeReader;
 
 /**
  * Driver to create classes metadata using annotations, depends on doctrine's annotation reader
@@ -38,7 +39,13 @@ class AnnotationDriver implements DriverInterface
         string $propertyMetadataClassName = PropertyMetadata::class,
         string $methodMetadataClassName = MethodMetadata::class
     ) {
-        $this->annotationReader          = new IndexedReader($annotationReader);
+        $reader = new IndexedReader($annotationReader);
+        
+        if (PHP_MAJOR_VERSION >= 8) {
+            $reader = new AttributeReader($reader);
+        }
+        
+        $this->annotationReader          = $reader;
         $this->classMetadataClassName    = $classMetadataClassName;
         $this->propertyMetadataClassName = $propertyMetadataClassName;
         $this->methodMetadataClassName   = $methodMetadataClassName;

@@ -29,9 +29,7 @@ trait TypeFromSetterTrait
                 throw new Exception("setter method {$classMetadata->name}:{$setterName} has more than one param");
             }
             
-            return $params[0]->getClass()
-                ? $params[0]->getClass()->name
-                : ($params[0]->hasType() ? $params[0]->getType()->getName() : null);
+            return $params[0]->hasType() ? $params[0]->getType()->getName() : null;
         }
     }
 

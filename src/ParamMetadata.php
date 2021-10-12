@@ -24,13 +24,13 @@ class ParamMetadata implements \Serializable
 
         $this->loadReflection();
 
-        $class = $this->reflection->getClass() ? $this->reflection->getClass()->name : null;
-        $type  = $this->reflection->hasType() ? $this->reflection->getType()->getName() : null;
+        $type = $this->reflection->hasType() ? $this->reflection->getType()->getName() : null;
 
-        $this->type = $class ?? $type;
+        $this->type = $type;
     }
 
-    private function loadReflection() {
+    private function loadReflection() 
+    {
         $callable = $this->class ? [$this->class, $this->method] : $this->method;
         $this->reflection = new ReflectionParameter($callable, $this->name);
     }
