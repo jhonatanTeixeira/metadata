@@ -93,6 +93,7 @@ class PropertyMetadata extends BaseMetadata
         }
 
         $uses = $this->getClassUses();
+        $type = str_replace('\\', '\\\\', $type);
 
         foreach ($uses as $use) {
             if (preg_match("/{$type}$/", $use)) {
