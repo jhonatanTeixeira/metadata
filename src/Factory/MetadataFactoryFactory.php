@@ -15,13 +15,15 @@ use Vox\Metadata\PropertyMetadata;
 
 class MetadataFactoryFactory implements MetadataFactoryFactoryInterface
 {
-    private $debug;
+    private bool $debug;
 
-    public function __construct($debug = false)
+    /**
+     * @param bool $debug whether to enable debug or not
+     */
+    public function __construct(bool $debug = false)
     {
         $this->debug = $debug;
     }
-
 
     public function createAnnotationMetadataFactory(
         string $metadataClassName = ClassMetadata::class,
